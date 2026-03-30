@@ -290,13 +290,12 @@ function url(p,neighbor){
   return lan?`http://${lan_host}:${p}`:`http://${domain_host}:${p}`;
 }
 function renderCard(s,isNeighbor){
-  const u=url(s.port,isNeighbor);
+  const u=url(s.port,isNeighbor)+(s.path||'');
   return `<a class="card" href="${u}" target="_blank" rel="noopener">
     <div class="c-icon">${s.icon}</div>
     <div class="c-info">
       <div class="c-name">${s.name}</div>
       <div class="c-desc">${s.desc}</div>
-      <div class="c-url" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('show')">${u.replace('http://','')}</div>
     </div>
   </a>`;
 }
