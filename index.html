@@ -350,7 +350,7 @@ detect();
   const m=d.getMonth()+1, day=d.getDate(), w=weekdays[d.getDay()];
   document.getElementById('wb-date').textContent=`${m}月${day}日 ${w}`;
 
-  fetch(`https://wttr.in/${encodeURIComponent(CONFIG.CITY)}?format=j1`)
+  fetch(`https://wttr.in/?format=j1`)
     .then(r=>r.json())
     .then(data=>{
       const cur=data.current_condition[0];
