@@ -5,6 +5,7 @@ const CONFIG = {
   IPV6: '::1',
   NEIGHBOR_LAN: '192.168.1.101',
   NEIGHBOR_DOMAIN: 'nas.example.com',
+  NEIGHBOR_IPV6: '::1',
   AUTH_PASSWORD: 'your_password_here',
   SERVICES: [
     { icon:'🔧', name:'Service Name', desc:'Description', port:8080, tags:['tag1','tag2'] }

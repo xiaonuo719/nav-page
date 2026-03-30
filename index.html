@@ -283,9 +283,10 @@ async function detect(){
 function url(p,neighbor){
   const lan_host=neighbor?CONFIG.NEIGHBOR_LAN:CONFIG.LAN_IP;
   const domain_host=neighbor?CONFIG.NEIGHBOR_DOMAIN:CONFIG.DOMAIN;
+  const v6=neighbor?CONFIG.NEIGHBOR_IPV6:CONFIG.IPV6;
   if(netMode==='lan') return `http://${lan_host}:${p}`;
   if(netMode==='domain') return `http://${domain_host}:${p}`;
-  if(netMode==='ipv6') return neighbor?`http://${domain_host}:${p}`:`http://[${CONFIG.IPV6}]:${p}`;
+  if(netMode==='ipv6') return `http://[${v6}]:${p}`;
   return lan?`http://${lan_host}:${p}`:`http://${domain_host}:${p}`;
 }
 function renderCard(s,isNeighbor){
@@ -302,13 +303,17 @@ function renderCard(s,isNeighbor){
 function render(){
   const g=document.getElementById('grid');g.innerHTML='';
   CONFIG.SERVICES.forEach(s=>{ g.innerHTML+=renderCard(s,false); });
+  // Remove old neighbor sections if any
+  document.querySelectorAll('.neighbor-section').forEach(el=>el.remove());
+  const wrap=document.createElement('div');wrap.className='neighbor-section';
   const lbl=document.createElement('div');
   lbl.className='section-label';lbl.style.marginTop='2.5rem';
   lbl.textContent='网 上 邻 居';
-  g.parentElement.insertBefore(lbl,g.nextSibling);
+  wrap.appendChild(lbl);
   const ng=document.createElement('div');ng.className='grid';
   CONFIG.NEIGHBOR_SERVICES.forEach(s=>{ ng.innerHTML+=renderCard(s,true); });
-  g.parentElement.insertBefore(ng,lbl.nextSibling);
+  wrap.appendChild(ng);
+  g.parentElement.insertBefore(wrap,g.nextSibling);
 }
 document.getElementById('engines').onclick=e=>{
   const b=e.target.closest('.eng-btn');if(!b)return;
