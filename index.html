@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>🏠 小王同学的小站</title>
+<style>
+:root{
+  --bg:#f5f5f7;--bg2:#ffffff;--text:#1d1d1f;--text2:#6e6e73;--text3:#aeaeb2;
+  --card-bg:#ffffff;--card-border:rgba(0,0,0,.08);--card-shadow:0 2px 16px rgba(0,0,0,.06);
+  --card-hover-shadow:0 8px 32px rgba(0,0,0,.1);
+  --input-bg:#ffffff;--input-border:rgba(0,0,0,.12);--input-focus:rgba(0,122,255,.4);
+  --badge-bg:rgba(0,0,0,.05);--divider:rgba(0,0,0,.06);
+  --accent:#007AFF;--accent2:#5856D6;
+  --glass:rgba(255,255,255,.72);
+  --transition:all .35s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"]{
+  --bg:#000000;--bg2:#1c1c1e;--text:#f5f5f7;--text2:#a1a1a6;--text3:#636366;
+  --card-bg:#1c1c1e;--card-border:rgba(255,255,255,.08);--card-shadow:0 2px 16px rgba(0,0,0,.3);
+  --card-hover-shadow:0 8px 32px rgba(0,0,0,.5);
+  --input-bg:#2c2c2e;--input-border:rgba(255,255,255,.1);--input-focus:rgba(10,132,255,.5);
+  --badge-bg:rgba(255,255,255,.06);--divider:rgba(255,255,255,.06);
+  --accent:#0A84FF;--accent2:#7D7AFF;
+  --glass:rgba(28,28,30,.72);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:var(--transition)}
+
+/* ===== AUTH ===== */
+.auth-gate{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;background:var(--bg)}
+.auth-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:24px;padding:3rem 2.5rem;text-align:center;max-width:360px;width:100%;box-shadow:var(--card-shadow);transition:var(--transition)}
+.auth-card .icon{font-size:3.5rem;margin-bottom:1.2rem;display:block;filter:grayscale(0)}
+.auth-card h2{font-size:1.4rem;font-weight:700;margin-bottom:.3rem;letter-spacing:-.02em}
+.auth-card .sub{color:var(--text2);font-size:.82rem;margin-bottom:1.8rem}
+.auth-card input{width:100%;padding:.85rem 1rem;border:1.5px solid var(--input-border);border-radius:14px;background:var(--input-bg);color:var(--text);font-size:1.15rem;text-align:center;letter-spacing:8px;outline:none;transition:var(--transition)}
+.auth-card input::placeholder{letter-spacing:1px;color:var(--text3);font-size:.82rem}
+.auth-card input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--input-focus)}
+.auth-card .btn{width:100%;padding:.85rem;margin-top:1rem;border:none;border-radius:14px;background:var(--accent);color:#fff;font-size:.95rem;font-weight:600;cursor:pointer;transition:var(--transition)}
+.auth-card .btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.auth-card .btn:active{transform:scale(.98)}
+.auth-card .err{color:#FF3B30;font-size:.75rem;margin-top:.6rem;min-height:1.2rem}
+.auth-card .hint{margin-top:1.4rem;padding-top:1.2rem;border-top:1px solid var(--divider);color:var(--text3);font-size:.68rem}
+
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* ===== MAIN APP ===== */
+.app{display:none}.app.show{display:block}
+
+/* Header */
+.header{background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--divider);position:sticky;top:0;z-index:90;padding:.8rem 1.5rem;transition:var(--transition);overflow:visible}
+.header-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem}
+.logo span{font-size:1.5rem}
+.header-right{display:flex;align-items:center;gap:.6rem}
+.net-select{position:relative}
+.net-current{padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:600;cursor:pointer;border:1px solid var(--card-border);background:var(--card-bg);transition:var(--transition);display:flex;align-items:center;gap:4px;user-select:none}
+.net-current:hover{background:var(--badge-bg)}
+.net-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:6px;box-shadow:var(--card-hover-shadow);min-width:140px;display:none;z-index:100}
+.net-dropdown.show{display:block}
+.net-opt{padding:8px 12px;border-radius:10px;font-size:.75rem;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:8px;color:var(--text2)}
+.net-opt:hover{background:var(--badge-bg);color:var(--text)}
+.net-opt.active{background:rgba(10,132,255,.1);color:var(--accent);font-weight:600}
+.net-opt .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--card-border);background:var(--card-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:var(--transition);box-shadow:var(--card-shadow)}
+.theme-toggle:hover{transform:scale(1.08)}
+.logout-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--card-border);background:var(--card-bg);color:var(--text2);font-size:.72rem;cursor:pointer;transition:var(--transition)}
+.logout-btn:hover{color:#FF3B30;border-color:rgba(255,59,48,.3)}
+
+/* Mobile: all items in header row */
+@media(max-width:640px){
+  .header{padding:.6rem .8rem}
+  .header-inner{flex-wrap:wrap;gap:.3rem}
+  .header-right{width:100%;justify-content:flex-end;gap:.4rem;flex-wrap:wrap}
+  .net-current{font-size:.62rem;padding:3px 8px}
+  .net-opt{padding:6px 10px;font-size:.7rem}
+  .logout-btn{font-size:.65rem;padding:4px 10px}
+  .theme-toggle{width:30px;height:30px;font-size:.9rem}
+}
+
+/* Container */
+.container{max-width:960px;margin:0 auto;padding:2rem 1.5rem 3rem}
+
+/* Search */
+.search-box{max-width:640px;margin:0 auto 2.5rem;text-align:center}
+.search-box h1{font-size:1.6rem;font-weight:700;margin-bottom:.3rem;letter-spacing:-.02em}
+.search-box .desc{color:var(--text2);font-size:.82rem;margin-bottom:1.5rem}
+.search-input-wrap{position:relative;margin-bottom:.8rem}
+.search-input-wrap input{width:100%;padding:1rem 1.2rem 1rem 3rem;border:1.5px solid var(--input-border);border-radius:16px;background:var(--input-bg);color:var(--text);font-size:1rem;outline:none;transition:var(--transition)}
+.search-input-wrap input::placeholder{color:var(--text3)}
+.search-input-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--input-focus)}
+.search-input-wrap .si{position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none}
+.engines{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap}
+.eng-btn{padding:.35rem .9rem;border-radius:18px;font-size:.74rem;cursor:pointer;border:1px solid var(--card-border);background:var(--card-bg);color:var(--text2);transition:var(--transition);user-select:none}
+.eng-btn:hover{background:var(--badge-bg);color:var(--text)}
+.eng-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.search-hint{color:var(--text3);font-size:.62rem;margin-top:.5rem}
+
+/* Section */
+.section-label{text-align:center;color:var(--text3);font-size:.72rem;margin:2rem 0 1.2rem;letter-spacing:4px;text-transform:uppercase}
+
+/* Cards Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:18px;padding:1.5rem;text-decoration:none;color:var(--text);display:flex;align-items:flex-start;gap:1rem;transition:var(--transition);box-shadow:var(--card-shadow);position:relative}
+.card:hover{transform:translateY(-3px);box-shadow:var(--card-hover-shadow);border-color:var(--accent)}
+.card .c-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.card:nth-child(7n+1) .c-icon{background:linear-gradient(135deg,#667eea20,#764ba220)}
+.card:nth-child(7n+2) .c-icon{background:linear-gradient(135deg,#f093fb20,#f5576c20)}
+.card:nth-child(7n+3) .c-icon{background:linear-gradient(135deg,#4facfe20,#00f2fe20)}
+.card:nth-child(7n+4) .c-icon{background:linear-gradient(135deg,#43e97b20,#38f9d720)}
+.card:nth-child(7n+5) .c-icon{background:linear-gradient(135deg,#fa709a20,#fee14020)}
+.card:nth-child(7n+6) .c-icon{background:linear-gradient(135deg,#a18cd120,#fbc2eb20)}
+.card:nth-child(7n+7) .c-icon{background:linear-gradient(135deg,#ffecd220,#fcb69f20)}
+.card .c-info{flex:1;min-width:0}
+.card .c-name{font-size:.95rem;font-weight:600;margin-bottom:.25rem}
+.card .c-desc{font-size:.78rem;color:var(--text2);line-height:1.5}
+.card .c-url{font-size:.65rem;color:var(--text3);margin-top:.5rem;font-family:'SF Mono',Menlo,monospace;opacity:.7;filter:blur(5px);transition:var(--transition);cursor:pointer}
+.card .c-url:hover,.card .c-url.show{filter:none}
+
+/* Footer */
+.footer{text-align:center;margin-top:3rem;color:var(--text3);font-size:.68rem}
+
+/* Responsive */
+@media(max-width:640px){
+  .container{padding:1.5rem 1rem 2rem}
+  .grid{grid-template-columns:1fr;gap:.8rem}
+  .search-box h1{font-size:1.3rem}
+  .header{padding:.7rem 1rem}
+  .logo{font-size:1.1rem}
+  .card{padding:1.2rem;gap:.8rem}
+  .card .c-icon{width:42px;height:42px;font-size:1.3rem;border-radius:12px}
+  .eng-btn{padding:.3rem .7rem;font-size:.7rem}
+  .auth-card{padding:2rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Auth Gate -->
+<div class="auth-gate" id="auth-gate">
+<div class="auth-card">
+<span class="icon">🔐</span>
+<h2>小王同学的小站</h2>
+<p class="sub">输入安全密码以继续访问</p>
+<input type="password" id="auth-input" placeholder="请输入密码" maxlength="20" autofocus />
+<button class="btn" id="auth-btn">验 证</button>
+<div class="err" id="auth-err"></div>
+<div class="hint">验证成功后，此设备 30 天内免密访问</div>
+</div>
+</div>
+
+<!-- App -->
+<div class="app" id="app">
+<header class="header">
+<div class="header-inner">
+<div class="logo"><span>🏠</span> 小王同学的小站</div>
+<div class="header-right">
+<div class="net-select" id="net-select">
+<div class="net-current" id="net-current">🔄 检测中…</div>
+<div class="net-dropdown" id="net-dropdown">
+<div class="net-opt active" data-mode="auto"><span class="dot" style="background:#FF9F0A"></span>自动选择</div>
+<div class="net-opt" data-mode="lan"><span class="dot" style="background:#30D158"></span>局域网 IP</div>
+<div class="net-opt" data-mode="domain"><span class="dot" style="background:#0A84FF"></span>域名访问</div>
+<div class="net-opt" data-mode="ipv6"><span class="dot" style="background:#BF5AF2"></span>IPv6 直连</div>
+</div>
+</div>
+<button class="theme-toggle" id="theme-btn" title="切换主题">🌙</button>
+<button class="logout-btn" id="logout-btn">退出登录</button>
+</div>
+</div>
+</header>
+
+<div class="container">
+<div class="search-box">
+<h1>你好，小王同学 👋</h1>
+<p class="desc">搜索或选择下方服务快速访问</p>
+<div class="search-input-wrap">
+<span class="si">🔍</span>
+<input type="text" id="search-input" placeholder="搜索服务或输入关键词…" autocomplete="off" />
+</div>
+<div class="engines" id="engines">
+<div class="eng-btn active" data-e="baidu">🔍 百度</div>
+<div class="eng-btn" data-e="google">🌐 Google</div>
+<div class="eng-btn" data-e="bing">🔎 Bing</div>
+<div class="eng-btn" data-e="all">⚡ 聚合</div>
+</div>
+<div class="search-hint">按 / 聚焦 · Enter 搜索 · Tab 切换引擎</div>
+</div>
+
+<div class="section-label">服 务 列 表</div>
+<div class="grid" id="grid"></div>
+<div class="footer">由 QQ虾 🦐 自动搭建 · 2026</div>
+</div>
+</div>
+
+<script src="config.js"></script>
+<script>
+// ====== THEME ======
+function getTheme(){
+  const saved=localStorage.getItem('nav_theme');
+  if(saved) return saved;
+  return window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('nav_theme',t);
+  document.getElementById('theme-btn').textContent=t==='dark'?'☀️':'🌙';
+}
+setTheme(getTheme());
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  setTheme(getTheme()==='dark'?'light':'dark');
+});
+
+// ====== AUTH ======
+const AUTH_KEY='nav_auth_token', AUTH_EXPIRE=30*24*60*60*1000;
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;return Math.abs(h).toString();}
+function checkAuth(){
+  try{const d=JSON.parse(localStorage.getItem(AUTH_KEY)||'null');
+  return d&&d.exp>Date.now()&&d.h===hash(navigator.userAgent+d.t);}catch{return false;}
+}
+function grantAuth(){
+  const t=Math.random().toString(36).slice(2);
+  localStorage.setItem(AUTH_KEY,JSON.stringify({t,h:hash(navigator.userAgent+t),exp:Date.now()+AUTH_EXPIRE}));
+}
+function revokeAuth(){
+  localStorage.removeItem(AUTH_KEY);
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('auth-gate').style.display='flex';
+  document.getElementById('auth-input').value='';
+  document.getElementById('auth-err').textContent='';
+}
+function tryAuth(){
+  const v=document.getElementById('auth-input').value;
+  if(v===CONFIG.AUTH_PASSWORD){grantAuth();document.getElementById('auth-gate').style.display='none';document.getElementById('app').classList.add('show');initApp();}
+  else{document.getElementById('auth-err').textContent='密码错误，请重试';document.getElementById('auth-input').value='';document.getElementById('auth-input').focus();
+  const c=document.querySelector('.auth-card');c.style.animation='shake .4s';setTimeout(()=>c.style.animation='',400);}
+}
+document.getElementById('auth-btn').onclick=tryAuth;
+document.getElementById('auth-input').onkeydown=e=>{if(e.key==='Enter')tryAuth();};
+document.getElementById('logout-btn').onclick=revokeAuth;
+if(checkAuth()){document.getElementById('auth-gate').style.display='none';document.getElementById('app').classList.add('show');setTimeout(initApp,0);}
+
+// ====== APP ======
+function initApp(){
+const eng={baidu:q=>`https://www.baidu.com/s?wd=${encodeURIComponent(q)}`,google:q=>`https://www.google.com/search?q=${encodeURIComponent(q)}`,bing:q=>`https://www.bing.com/search?q=${encodeURIComponent(q)}`};
+let lan=false,curEng='baidu',netMode=localStorage.getItem('nav_net_mode')||'auto';
+
+function getNetLabel(mode){
+  const m={auto:lan?'🏠 局域网':'🌍 远程访问',lan:'🏠 局域网',domain:'🌐 域名',ipv6:'🔗 IPv6'};
+  return m[mode]||m.auto;
+}
+function updateNetUI(){
+  const el=document.getElementById('net-current');
+  el.textContent=getNetLabel(netMode);
+  document.querySelectorAll('.net-opt').forEach(o=>{
+    o.classList.toggle('active',o.dataset.mode===netMode);
+  });
+  render();
+}
+
+document.getElementById('net-current').addEventListener('click',e=>{
+  e.stopPropagation();
+  document.getElementById('net-dropdown').classList.toggle('show');
+});
+document.getElementById('net-dropdown').addEventListener('click',e=>{
+  const opt=e.target.closest('.net-opt');if(!opt)return;
+  netMode=opt.dataset.mode;
+  localStorage.setItem('nav_net_mode',netMode);
+  document.getElementById('net-dropdown').classList.remove('show');
+  updateNetUI();
+});
+document.addEventListener('click',()=>document.getElementById('net-dropdown').classList.remove('show'));
+
+async function detect(){
+  try{const c=new AbortController();const tm=setTimeout(()=>c.abort(),1500);
+  await fetch(`http://${CONFIG.LAN_IP}:${location.port||10001}/`,{mode:'no-cors',signal:c.signal});clearTimeout(tm);
+  lan=true;}catch{lan=false;}
+  updateNetUI();
+}
+function url(p,neighbor){
+  const lan_host=neighbor?CONFIG.NEIGHBOR_LAN:CONFIG.LAN_IP;
+  const domain_host=neighbor?CONFIG.NEIGHBOR_DOMAIN:CONFIG.DOMAIN;
+  if(netMode==='lan') return `http://${lan_host}:${p}`;
+  if(netMode==='domain') return `http://${domain_host}:${p}`;
+  if(netMode==='ipv6') return neighbor?`http://${domain_host}:${p}`:`http://[${CONFIG.IPV6}]:${p}`;
+  return lan?`http://${lan_host}:${p}`:`http://${domain_host}:${p}`;
+}
+function renderCard(s,isNeighbor){
+  const u=url(s.port,isNeighbor);
+  return `<a class="card" href="${u}" target="_blank" rel="noopener">
+    <div class="c-icon">${s.icon}</div>
+    <div class="c-info">
+      <div class="c-name">${s.name}</div>
+      <div class="c-desc">${s.desc}</div>
+      <div class="c-url" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('show')">${u.replace('http://','')}</div>
+    </div>
+  </a>`;
+}
+function render(){
+  const g=document.getElementById('grid');g.innerHTML='';
+  CONFIG.SERVICES.forEach(s=>{ g.innerHTML+=renderCard(s,false); });
+  const lbl=document.createElement('div');
+  lbl.className='section-label';lbl.style.marginTop='2.5rem';
+  lbl.textContent='网 上 邻 居';
+  g.parentElement.insertBefore(lbl,g.nextSibling);
+  const ng=document.createElement('div');ng.className='grid';
+  CONFIG.NEIGHBOR_SERVICES.forEach(s=>{ ng.innerHTML+=renderCard(s,true); });
+  g.parentElement.insertBefore(ng,lbl.nextSibling);
+}
+document.getElementById('engines').onclick=e=>{
+  const b=e.target.closest('.eng-btn');if(!b)return;
+  document.querySelectorAll('.eng-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');curEng=b.dataset.e;document.getElementById('search-input').focus();
+};
+function search(){
+  const q=document.getElementById('search-input').value.trim();if(!q)return;
+  if(curEng==='all'){window.open(eng.baidu(q),'_blank');window.open(eng.google(q),'_blank');window.open(eng.bing(q),'_blank');}
+  else window.open(eng[curEng](q),'_blank');
+}
+document.getElementById('search-input').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();search();}};
+document.addEventListener('keydown',e=>{
+  if(e.key==='/'&&document.activeElement!==document.getElementById('search-input')){e.preventDefault();document.getElementById('search-input').focus();}
+  if(e.key==='Escape'){document.getElementById('search-input').value='';document.getElementById('search-input').blur();}
+  if(e.key==='Tab'&&document.activeElement===document.getElementById('search-input')){
+    e.preventDefault();const ts=[...document.querySelectorAll('.eng-btn')];const i=ts.findIndex(x=>x.classList.contains('active'));
+    ts[i].classList.remove('active');const n=ts[(i+1)%ts.length];n.classList.add('active');curEng=n.dataset.e;}
+});
+detect();
+}
+</script>
+</body>
+</html>
