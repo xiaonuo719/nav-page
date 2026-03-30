@@ -100,7 +100,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .search-hint{color:var(--text3);font-size:.62rem;margin-top:.5rem}
 
 /* Section */
-.section-label{text-align:center;color:var(--text3);font-size:.72rem;margin:2rem 0 1.2rem;letter-spacing:4px;text-transform:uppercase}
+.weather-bar{display:flex;align-items:center;justify-content:center;gap:.6rem;padding:.8rem 1rem;margin-bottom:.5rem;color:var(--text2);font-size:.82rem;font-weight:500;flex-wrap:wrap}
+.weather-bar .wb-divider{color:var(--text3);font-size:.7rem}
+.weather-bar .wb-weather{display:flex;align-items:center;gap:.3rem}
+.weather-bar .wb-temp{font-weight:700;color:var(--text)}
+.section-label{text-align:center;color:var(--text3);font-size:.72rem;margin:1.5rem 0 1.2rem;letter-spacing:4px;text-transform:uppercase}
 
 /* Cards Grid */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
@@ -188,6 +192,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 <div class="eng-btn" data-e="all">⚡ 聚合</div>
 </div>
 <div class="search-hint">按 / 聚焦 · Enter 搜索 · Tab 切换引擎</div>
+</div>
+
+<div class="weather-bar" id="weather-bar">
+  <span class="wb-date" id="wb-date"></span>
+  <span class="wb-divider">·</span>
+  <span class="wb-weather" id="wb-weather">加载天气中…</span>
 </div>
 
 <div class="section-label">服 务 列 表</div>
@@ -333,6 +343,28 @@ document.addEventListener('keydown',e=>{
     ts[i].classList.remove('active');const n=ts[(i+1)%ts.length];n.classList.add('active');curEng=n.dataset.e;}
 });
 detect();
+// ====== 日期 & 天气 ======
+(function(){
+  const d=new Date();
+  const weekdays=['周日','周一','周二','周三','周四','周五','周六'];
+  const m=d.getMonth()+1, day=d.getDate(), w=weekdays[d.getDay()];
+  document.getElementById('wb-date').textContent=`${m}月${day}日 ${w}`;
+
+  fetch(`https://wttr.in/${encodeURIComponent(CONFIG.CITY)}?format=j1`)
+    .then(r=>r.json())
+    .then(data=>{
+      const cur=data.current_condition[0];
+      const temp=cur.temp_C;
+      const desc_cn=cur.lang_zh&&cur.lang_zh[0]?cur.lang_zh[0].value:cur.weatherDesc[0].value;
+      const humidity=cur.humidity;
+      const feelsLike=cur.FeelsLikeC;
+      document.getElementById('wb-weather').innerHTML=
+        `🌡️ <span class="wb-temp">${temp}°C</span> ${desc_cn} · 体感 ${feelsLike}°C · 💧${humidity}%`;
+    })
+    .catch(()=>{
+      document.getElementById('wb-weather').textContent='天气获取失败';
+    });
+})();
 // ====== 每日诗词 ======
 (function(){
 const poems=[
