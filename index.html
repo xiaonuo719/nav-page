@@ -121,7 +121,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .card .c-url:hover,.card .c-url.show{filter:none}
 
 /* Footer */
-.footer{text-align:center;margin-top:3rem;color:var(--text3);font-size:.68rem}
+.footer{text-align:center;margin-top:3rem;color:var(--text3);font-size:.68rem;line-height:1.6;max-width:640px;margin-left:auto;margin-right:auto;padding:0 1rem}
 
 /* Responsive */
 @media(max-width:640px){
@@ -192,7 +192,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
 <div class="section-label">服 务 列 表</div>
 <div class="grid" id="grid"></div>
-<div class="footer">由 QQ虾 🦐 自动搭建 · 2026</div>
+<div class="footer" id="poem-footer"></div>
 </div>
 </div>
 
@@ -333,6 +333,43 @@ document.addEventListener('keydown',e=>{
     ts[i].classList.remove('active');const n=ts[(i+1)%ts.length];n.classList.add('active');curEng=n.dataset.e;}
 });
 detect();
+// ====== 每日诗词 ======
+(function(){
+const poems=[
+  "海内存知己，天涯若比邻。——王勃《送杜少府之任蜀州》",
+  "长风破浪会有时，直挂云帆济沧海。——李白《行路难》",
+  "落霞与孤鹜齐飞，秋水共长天一色。——王勃《滕王阁序》",
+  "人生得意须尽欢，莫使金樽空对月。——李白《将进酒》",
+  "大鹏一日同风起，扶摇直上九万里。——李白《上李邕》",
+  "沉舟侧畔千帆过，病树前头万木春。——刘禹锡《酬乐天扬州初逢席上见赠》",
+  "不畏浮云遮望眼，自缘身在最高层。——王安石《登飞来峰》",
+  "山重水复疑无路，柳暗花明又一村。——陆游《游山西村》",
+  "会当凌绝顶，一览众山小。——杜甫《望岳》",
+  "天生我材必有用，千金散尽还复来。——李白《将进酒》",
+  "竹外桃花三两枝，春江水暖鸭先知。——苏轼《惠崇春江晚景》",
+  "春风又绿江南岸，明月何时照我还。——王安石《泊船瓜洲》",
+  "欲穷千里目，更上一层楼。——王之涣《登鹳雀楼》",
+  "千山鸟飞绝，万径人踪灭。——柳宗元《江雪》",
+  "疏影横斜水清浅，暗香浮动月黄昏。——林逋《山园小梅》",
+  "采菊东篱下，悠然见南山。——陶渊明《饮酒》",
+  "问君能有几多愁？恰似一江春水向东流。——李煜《虞美人》",
+  "莫愁前路无知己，天下谁人不识君。——高适《别董大》",
+  "但愿人长久，千里共婵娟。——苏轼《水调歌头》",
+  "海上生明月，天涯共此时。——张九龄《望月怀远》",
+  "两情若是久长时，又岂在朝朝暮暮。——秦观《鹊桥仙》",
+  "此情可待成追忆，只是当时已惘然。——李商隐《锦瑟》",
+  "一寸光阴一寸金，寸金难买寸光阴。——《增广贤文》",
+  "清水出芙蓉，天然去雕饰。——李白《经乱离后天恩流夜郎》",
+  "长风几万里，吹度玉门关。——李白《关山月》",
+  "明月松间照，清泉石上流。——王维《山居秋暝》",
+  "行到水穷处，坐看云起时。——王维《终南别业》",
+  "人间四月芳菲尽，山寺桃花始盛开。——白居易《大林寺桃花》",
+  "小荷才露尖尖角，早有蜻蜓立上头。——杨万里《小池》",
+  "随风潜入夜，润物细无声。——杜甫《春夜喜雨》"
+];
+const d=new Date(),dayOfYear=Math.floor((d-new Date(d.getFullYear(),0,0))/(86400000));
+document.getElementById('poem-footer').textContent=poems[dayOfYear%poems.length];
+})();
 }
 </script>
 </body>
