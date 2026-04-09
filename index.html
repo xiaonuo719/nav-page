@@ -153,7 +153,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .edit-mode .card-act-btn{pointer-events:auto}
 .add-card-btn{background:var(--card-bg);border:2px dashed var(--card-border);border-radius:18px;padding:1.5rem;display:none;align-items:center;justify-content:center;gap:.5rem;cursor:pointer;color:var(--text3);font-size:.85rem;transition:var(--transition);text-align:center}
 .add-card-btn:hover{border-color:var(--accent);color:var(--accent)}
+.add-card-btn .plus{font-size:1.2rem}
 .edit-mode .add-card-btn{display:flex}
+.modal-err{color:#FF3B30;font-size:.75rem;min-height:1.1rem;margin-top:.5rem;text-align:right}
 
 /* ===== MODAL ===== */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
@@ -283,6 +285,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     <button class="modal-btn cancel" id="modal-cancel">取消</button>
     <button class="modal-btn save" id="modal-save">保存</button>
   </div>
+  <div class="modal-err" id="modal-err"></div>
 </div>
 </div>
 
@@ -418,7 +421,7 @@ function renderCard(s,idx,isNeighbor){
 function render(){
   const g=document.getElementById('grid');g.innerHTML='';
   services.forEach((s,i)=>{ g.innerHTML+=renderCard(s,i,false); });
-  g.innerHTML+=`<div class="add-card-btn" data-action="add" data-neighbor="false"><span style="font-size:1.2rem">＋</span> 添加服务</div>`;
+  g.innerHTML+=`<div class="add-card-btn" data-action="add" data-neighbor="false"><span class="plus">＋</span> 添加服务</div>`;
   // Remove old neighbor sections if any
   document.querySelectorAll('.neighbor-section').forEach(el=>el.remove());
   const wrap=document.createElement('div');wrap.className='neighbor-section';
@@ -428,7 +431,7 @@ function render(){
   wrap.appendChild(lbl);
   const ng=document.createElement('div');ng.className='grid';
   neighborServices.forEach((s,i)=>{ ng.innerHTML+=renderCard(s,i,true); });
-  ng.innerHTML+=`<div class="add-card-btn" data-action="add" data-neighbor="true"><span style="font-size:1.2rem">＋</span> 添加邻居服务</div>`;
+  ng.innerHTML+=`<div class="add-card-btn" data-action="add" data-neighbor="true"><span class="plus">＋</span> 添加邻居服务</div>`;
   wrap.appendChild(ng);
   g.parentElement.insertBefore(wrap,g.nextSibling);
 }
@@ -471,13 +474,15 @@ function openModal(idx,isNeighbor){
 }
 function closeModal(){
   document.getElementById('modal-backdrop').classList.remove('show');
+  document.getElementById('modal-err').textContent='';
 }
 function saveModal(){
+  const errEl=document.getElementById('modal-err');errEl.textContent='';
   const name=document.getElementById('f-name').value.trim();
-  if(!name){document.getElementById('f-name').focus();return;}
+  if(!name){errEl.textContent='请输入服务名称';document.getElementById('f-name').focus();return;}
   const portVal=document.getElementById('f-port').value.trim();
   const port=parseInt(portVal);
-  if(isNaN(port)||port<1||port>65535){document.getElementById('f-port').focus();return;}
+  if(isNaN(port)||port<1||port>65535){errEl.textContent='请输入有效端口（1–65535）';document.getElementById('f-port').focus();return;}
   const pathVal=document.getElementById('f-path').value.trim();
   const tagsVal=document.getElementById('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
   const s={icon:document.getElementById('f-icon').value.trim()||'🔧',name,desc:document.getElementById('f-desc').value.trim(),port,tags:tagsVal};
@@ -508,10 +513,11 @@ function deleteCard(idx,isNeighbor){
 }
 document.getElementById('app').addEventListener('click',function(e){
   const t=e.target.closest('[data-action]');if(!t)return;
-  const action=t.dataset.action,idx=parseInt(t.dataset.idx),isNeighbor=t.dataset.neighbor==='true';
+  const action=t.dataset.action,isNeighbor=t.dataset.neighbor==='true';
+  if(action==='add'){openModal(-1,isNeighbor);return;}
+  const idx=parseInt(t.dataset.idx);
   if(action==='edit') openModal(idx,isNeighbor);
   else if(action==='delete') deleteCard(idx,isNeighbor);
-  else if(action==='add') openModal(-1,isNeighbor);
 });
 document.getElementById('modal-cancel').onclick=closeModal;
 document.getElementById('modal-save').onclick=saveModal;
