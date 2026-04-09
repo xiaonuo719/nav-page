@@ -139,6 +139,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   .eng-btn{padding:.3rem .7rem;font-size:.7rem}
   .auth-card{padding:2rem 1.5rem}
 }
+
+/* ===== EDIT MODE ===== */
+.edit-toggle-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--card-border);background:var(--card-bg);color:var(--text2);font-size:.72rem;cursor:pointer;transition:var(--transition)}
+.edit-toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.card-wrap{position:relative}
+.card-actions{position:absolute;top:.5rem;right:.5rem;display:none;gap:.3rem;z-index:10}
+.edit-mode .card-actions{display:flex}
+.card-act-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--card-border);background:var(--card-bg);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:var(--transition);opacity:.8;padding:0}
+.card-act-btn:hover{opacity:1;transform:scale(1.1)}
+.card-act-btn.del:hover{background:#FF3B30;border-color:#FF3B30;color:#fff}
+.edit-mode .card{pointer-events:none}
+.edit-mode .card-act-btn{pointer-events:auto}
+.add-card-btn{background:var(--card-bg);border:2px dashed var(--card-border);border-radius:18px;padding:1.5rem;display:none;align-items:center;justify-content:center;gap:.5rem;cursor:pointer;color:var(--text3);font-size:.85rem;transition:var(--transition);text-align:center}
+.add-card-btn:hover{border-color:var(--accent);color:var(--accent)}
+.add-card-btn .plus{font-size:1.2rem}
+.edit-mode .add-card-btn{display:flex}
+.modal-err{color:#FF3B30;font-size:.75rem;min-height:1.1rem;margin-top:.5rem;text-align:right}
+
+/* ===== MODAL ===== */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-backdrop.show{display:flex}
+.modal{background:var(--card-bg);border:1px solid var(--card-border);border-radius:24px;padding:2rem;width:100%;max-width:480px;box-shadow:var(--card-hover-shadow);max-height:90vh;overflow-y:auto}
+.modal h3{font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;letter-spacing:-.02em}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:.4rem;letter-spacing:.03em;text-transform:uppercase}
+.form-group input,.form-group select{width:100%;padding:.7rem .9rem;border:1.5px solid var(--input-border);border-radius:12px;background:var(--input-bg);color:var(--text);font-size:.9rem;outline:none;transition:var(--transition)}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--input-focus)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.modal-footer{display:flex;gap:.6rem;margin-top:1.5rem;justify-content:flex-end}
+.modal-btn{padding:.7rem 1.4rem;border-radius:12px;border:none;font-size:.85rem;font-weight:600;cursor:pointer;transition:var(--transition)}
+.modal-btn.cancel{background:var(--badge-bg);color:var(--text2)}
+.modal-btn.cancel:hover{background:var(--card-border)}
+.modal-btn.save{background:var(--accent);color:#fff}
+.modal-btn.save:hover{filter:brightness(1.1)}
+@media(max-width:640px){.form-row{grid-template-columns:1fr}.edit-toggle-btn{font-size:.65rem;padding:4px 10px}}
 </style>
 </head>
 <body>
@@ -172,6 +207,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 </div>
 </div>
 <button class="theme-toggle" id="theme-btn" title="切换主题">🌙</button>
+<button class="edit-toggle-btn" id="edit-toggle-btn" title="编辑导航卡片">✏️ 编辑</button>
 <button class="logout-btn" id="logout-btn">退出登录</button>
 </div>
 </div>
@@ -206,6 +242,53 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 </div>
 </div>
 
+<!-- Edit Modal -->
+<div class="modal-backdrop" id="modal-backdrop">
+<div class="modal">
+  <h3 id="modal-title">添加服务</h3>
+  <div class="form-row">
+    <div class="form-group">
+      <label>图标 (Emoji)</label>
+      <input type="text" id="f-icon" placeholder="🔧" maxlength="4" />
+    </div>
+    <div class="form-group">
+      <label>分类</label>
+      <select id="f-section">
+        <option value="own">本机服务</option>
+        <option value="neighbor">网上邻居</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>名称</label>
+    <input type="text" id="f-name" placeholder="服务名称" />
+  </div>
+  <div class="form-group">
+    <label>描述</label>
+    <input type="text" id="f-desc" placeholder="服务描述" />
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>端口</label>
+      <input type="number" id="f-port" placeholder="8080" min="1" max="65535" />
+    </div>
+    <div class="form-group">
+      <label>路径 (可选)</label>
+      <input type="text" id="f-path" placeholder="/path" />
+    </div>
+  </div>
+  <div class="form-group">
+    <label>标签 (逗号分隔)</label>
+    <input type="text" id="f-tags" placeholder="tag1, tag2" />
+  </div>
+  <div class="modal-footer">
+    <button class="modal-btn cancel" id="modal-cancel">取消</button>
+    <button class="modal-btn save" id="modal-save">保存</button>
+  </div>
+  <div class="modal-err" id="modal-err"></div>
+</div>
+</div>
+
 <script src="config.js"></script>
 <script>
 // ====== THEME ======
@@ -237,7 +320,10 @@ function grantAuth(){
 }
 function revokeAuth(){
   localStorage.removeItem(AUTH_KEY);
-  document.getElementById('app').classList.remove('show');
+  editMode=false;
+  document.getElementById('app').classList.remove('show','edit-mode');
+  document.getElementById('edit-toggle-btn').classList.remove('active');
+  document.getElementById('edit-toggle-btn').textContent='✏️ 编辑';
   document.getElementById('auth-gate').style.display='flex';
   document.getElementById('auth-input').value='';
   document.getElementById('auth-err').textContent='';
@@ -251,12 +337,37 @@ function tryAuth(){
 document.getElementById('auth-btn').onclick=tryAuth;
 document.getElementById('auth-input').onkeydown=e=>{if(e.key==='Enter')tryAuth();};
 document.getElementById('logout-btn').onclick=revokeAuth;
-if(checkAuth()){document.getElementById('auth-gate').style.display='none';document.getElementById('app').classList.add('show');setTimeout(initApp,0);}
+if(checkAuth()){document.getElementById('auth-gate').style.display='none';document.getElementById('app').classList.add('show');initApp();}
 
 // ====== APP ======
-function initApp(){
+let editMode=false;
+async function initApp(){
+// 动态获取网络信息
+try{
+  const res=await fetch('/api/network-info');
+  const info=await res.json();
+  if(info.lan_ip) CONFIG.LAN_IP=info.lan_ip;
+  if(info.ipv6) CONFIG.IPV6=info.ipv6;
+}catch(e){console.warn('获取网络信息失败，使用config.js默认值',e);}
+
 const eng={baidu:q=>`https://www.baidu.com/s?wd=${encodeURIComponent(q)}`,google:q=>`https://www.google.com/search?q=${encodeURIComponent(q)}`,bing:q=>`https://www.bing.com/search?q=${encodeURIComponent(q)}`};
 let lan=false,curEng='baidu',netMode=localStorage.getItem('nav_net_mode')||'auto';
+
+// ====== SERVICES STORAGE ======
+function loadServices(){try{const s=localStorage.getItem('nav_services');if(s)return JSON.parse(s);}catch{}return JSON.parse(JSON.stringify(CONFIG.SERVICES));}
+function loadNeighborServices(){try{const s=localStorage.getItem('nav_neighbor_services');if(s)return JSON.parse(s);}catch{}return JSON.parse(JSON.stringify(CONFIG.NEIGHBOR_SERVICES));}
+function saveServices(){localStorage.setItem('nav_services',JSON.stringify(services));localStorage.setItem('nav_neighbor_services',JSON.stringify(neighborServices));}
+let services=loadServices(),neighborServices=loadNeighborServices();
+
+// ====== EDIT MODE ======
+function toggleEditMode(){
+  editMode=!editMode;
+  document.getElementById('app').classList.toggle('edit-mode',editMode);
+  const btn=document.getElementById('edit-toggle-btn');
+  btn.classList.toggle('active',editMode);
+  btn.textContent=editMode?'✅ 完成':'✏️ 编辑';
+}
+document.getElementById('edit-toggle-btn').onclick=toggleEditMode;
 
 function getNetLabel(mode){
   const m={auto:lan?'🏠 局域网':'🌍 远程访问',lan:'🏠 局域网',domain:'🌐 域名',ipv6:'🔗 IPv6'};
@@ -299,19 +410,26 @@ function url(p,neighbor){
   if(netMode==='ipv6') return `http://[${v6}]:${p}`;
   return lan?`http://${lan_host}:${p}`:`http://${domain_host}:${p}`;
 }
-function renderCard(s,isNeighbor){
+function renderCard(s,idx,isNeighbor){
   const u=url(s.port,isNeighbor)+(s.path||'');
-  return `<a class="card" href="${u}" target="_blank" rel="noopener">
-    <div class="c-icon">${s.icon}</div>
-    <div class="c-info">
-      <div class="c-name">${s.name}</div>
-      <div class="c-desc">${s.desc}</div>
+  return `<div class="card-wrap">
+    <a class="card" href="${u}" target="_blank" rel="noopener">
+      <div class="c-icon">${s.icon}</div>
+      <div class="c-info">
+        <div class="c-name">${s.name}</div>
+        <div class="c-desc">${s.desc}</div>
+      </div>
+    </a>
+    <div class="card-actions">
+      <button class="card-act-btn" data-action="edit" data-idx="${idx}" data-neighbor="${isNeighbor}" title="编辑">✏️</button>
+      <button class="card-act-btn del" data-action="delete" data-idx="${idx}" data-neighbor="${isNeighbor}" title="删除">🗑️</button>
     </div>
-  </a>`;
+  </div>`;
 }
 function render(){
   const g=document.getElementById('grid');g.innerHTML='';
-  CONFIG.SERVICES.forEach(s=>{ g.innerHTML+=renderCard(s,false); });
+  services.forEach((s,i)=>{ g.innerHTML+=renderCard(s,i,false); });
+  g.innerHTML+=`<div class="add-card-btn" data-action="add" data-neighbor="false"><span class="plus">＋</span> 添加服务</div>`;
   // Remove old neighbor sections if any
   document.querySelectorAll('.neighbor-section').forEach(el=>el.remove());
   const wrap=document.createElement('div');wrap.className='neighbor-section';
@@ -320,7 +438,8 @@ function render(){
   lbl.textContent='网 上 邻 居';
   wrap.appendChild(lbl);
   const ng=document.createElement('div');ng.className='grid';
-  CONFIG.NEIGHBOR_SERVICES.forEach(s=>{ ng.innerHTML+=renderCard(s,true); });
+  neighborServices.forEach((s,i)=>{ ng.innerHTML+=renderCard(s,i,true); });
+  ng.innerHTML+=`<div class="add-card-btn" data-action="add" data-neighbor="true"><span class="plus">＋</span> 添加邻居服务</div>`;
   wrap.appendChild(ng);
   g.parentElement.insertBefore(wrap,g.nextSibling);
 }
@@ -337,12 +456,81 @@ function search(){
 document.getElementById('search-input').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();search();}};
 document.addEventListener('keydown',e=>{
   if(e.key==='/'&&document.activeElement!==document.getElementById('search-input')){e.preventDefault();document.getElementById('search-input').focus();}
-  if(e.key==='Escape'){document.getElementById('search-input').value='';document.getElementById('search-input').blur();}
+  if(e.key==='Escape'&&!document.getElementById('modal-backdrop').classList.contains('show')){document.getElementById('search-input').value='';document.getElementById('search-input').blur();}
   if(e.key==='Tab'&&document.activeElement===document.getElementById('search-input')){
     e.preventDefault();const ts=[...document.querySelectorAll('.eng-btn')];const i=ts.findIndex(x=>x.classList.contains('active'));
     ts[i].classList.remove('active');const n=ts[(i+1)%ts.length];n.classList.add('active');curEng=n.dataset.e;}
 });
 detect();
+// ====== MODAL ======
+let modalEditIdx=-1,modalEditIsNeighbor=false;
+function openModal(idx,isNeighbor){
+  modalEditIdx=idx;
+  modalEditIsNeighbor=isNeighbor;
+  const list=isNeighbor?neighborServices:services;
+  const s=idx>=0?list[idx]:{icon:'🔧',name:'',desc:'',port:'',path:'',tags:[]};
+  document.getElementById('modal-title').textContent=idx>=0?'编辑服务':'添加服务';
+  document.getElementById('f-icon').value=s.icon||'';
+  document.getElementById('f-name').value=s.name||'';
+  document.getElementById('f-desc').value=s.desc||'';
+  document.getElementById('f-port').value=s.port||'';
+  document.getElementById('f-path').value=s.path||'';
+  document.getElementById('f-tags').value=(s.tags||[]).join(', ');
+  document.getElementById('f-section').value=isNeighbor?'neighbor':'own';
+  document.getElementById('modal-backdrop').classList.add('show');
+  setTimeout(()=>document.getElementById('f-name').focus(),50);
+}
+function closeModal(){
+  document.getElementById('modal-backdrop').classList.remove('show');
+  document.getElementById('modal-err').textContent='';
+}
+function saveModal(){
+  const errEl=document.getElementById('modal-err');errEl.textContent='';
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){errEl.textContent='请输入服务名称';document.getElementById('f-name').focus();return;}
+  const portVal=document.getElementById('f-port').value.trim();
+  const port=parseInt(portVal);
+  if(isNaN(port)||port<1||port>65535){errEl.textContent='请输入有效端口（1–65535）';document.getElementById('f-port').focus();return;}
+  const pathVal=document.getElementById('f-path').value.trim();
+  const tagsVal=document.getElementById('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const s={icon:document.getElementById('f-icon').value.trim()||'🔧',name,desc:document.getElementById('f-desc').value.trim(),port,tags:tagsVal};
+  if(pathVal) s.path=pathVal;
+  const newIsNeighbor=document.getElementById('f-section').value==='neighbor';
+  if(modalEditIdx>=0){
+    if(newIsNeighbor!==modalEditIsNeighbor){
+      // Section changed: remove from old list, add to new list
+      const oldList=modalEditIsNeighbor?neighborServices:services;
+      const newList=newIsNeighbor?neighborServices:services;
+      oldList.splice(modalEditIdx,1);
+      newList.push(s);
+    } else {
+      (newIsNeighbor?neighborServices:services)[modalEditIdx]=s;
+    }
+  } else {
+    (newIsNeighbor?neighborServices:services).push(s);
+  }
+  saveServices();
+  closeModal();
+  render();
+}
+function deleteCard(idx,isNeighbor){
+  if(!confirm('确定删除此服务？'))return;
+  (isNeighbor?neighborServices:services).splice(idx,1);
+  saveServices();
+  render();
+}
+document.getElementById('app').addEventListener('click',function(e){
+  const t=e.target.closest('[data-action]');if(!t)return;
+  const action=t.dataset.action,isNeighbor=t.dataset.neighbor==='true';
+  if(action==='add'){openModal(-1,isNeighbor);return;}
+  const idx=parseInt(t.dataset.idx);
+  if(action==='edit') openModal(idx,isNeighbor);
+  else if(action==='delete') deleteCard(idx,isNeighbor);
+});
+document.getElementById('modal-cancel').onclick=closeModal;
+document.getElementById('modal-save').onclick=saveModal;
+document.getElementById('modal-backdrop').addEventListener('click',e=>{if(e.target===document.getElementById('modal-backdrop'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('modal-backdrop').classList.contains('show'))closeModal();});
 // ====== 日期 & 天气 ======
 (function(){
   const d=new Date();
