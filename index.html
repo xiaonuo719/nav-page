@@ -410,15 +410,15 @@ function renderCard(s,idx,isNeighbor){
       </div>
     </a>
     <div class="card-actions">
-      <button class="card-act-btn" onclick="openModal(${idx},${isNeighbor})" title="编辑">✏️</button>
-      <button class="card-act-btn del" onclick="deleteCard(${idx},${isNeighbor})" title="删除">🗑️</button>
+      <button class="card-act-btn" data-action="edit" data-idx="${idx}" data-neighbor="${isNeighbor}" title="编辑">✏️</button>
+      <button class="card-act-btn del" data-action="delete" data-idx="${idx}" data-neighbor="${isNeighbor}" title="删除">🗑️</button>
     </div>
   </div>`;
 }
 function render(){
   const g=document.getElementById('grid');g.innerHTML='';
   services.forEach((s,i)=>{ g.innerHTML+=renderCard(s,i,false); });
-  g.innerHTML+=`<div class="add-card-btn" onclick="openModal(-1,false)"><span style="font-size:1.2rem">＋</span> 添加服务</div>`;
+  g.innerHTML+=`<div class="add-card-btn" data-action="add" data-neighbor="false"><span style="font-size:1.2rem">＋</span> 添加服务</div>`;
   // Remove old neighbor sections if any
   document.querySelectorAll('.neighbor-section').forEach(el=>el.remove());
   const wrap=document.createElement('div');wrap.className='neighbor-section';
@@ -428,7 +428,7 @@ function render(){
   wrap.appendChild(lbl);
   const ng=document.createElement('div');ng.className='grid';
   neighborServices.forEach((s,i)=>{ ng.innerHTML+=renderCard(s,i,true); });
-  ng.innerHTML+=`<div class="add-card-btn" onclick="openModal(-1,true)"><span style="font-size:1.2rem">＋</span> 添加邻居服务</div>`;
+  ng.innerHTML+=`<div class="add-card-btn" data-action="add" data-neighbor="true"><span style="font-size:1.2rem">＋</span> 添加邻居服务</div>`;
   wrap.appendChild(ng);
   g.parentElement.insertBefore(wrap,g.nextSibling);
 }
@@ -477,7 +477,7 @@ function saveModal(){
   if(!name){document.getElementById('f-name').focus();return;}
   const portVal=document.getElementById('f-port').value.trim();
   const port=parseInt(portVal);
-  if(!port||port<1||port>65535){document.getElementById('f-port').focus();return;}
+  if(isNaN(port)||port<1||port>65535){document.getElementById('f-port').focus();return;}
   const pathVal=document.getElementById('f-path').value.trim();
   const tagsVal=document.getElementById('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
   const s={icon:document.getElementById('f-icon').value.trim()||'🔧',name,desc:document.getElementById('f-desc').value.trim(),port,tags:tagsVal};
@@ -506,8 +506,13 @@ function deleteCard(idx,isNeighbor){
   saveServices();
   render();
 }
-window.openModal=openModal;
-window.deleteCard=deleteCard;
+document.getElementById('app').addEventListener('click',function(e){
+  const t=e.target.closest('[data-action]');if(!t)return;
+  const action=t.dataset.action,idx=parseInt(t.dataset.idx),isNeighbor=t.dataset.neighbor==='true';
+  if(action==='edit') openModal(idx,isNeighbor);
+  else if(action==='delete') deleteCard(idx,isNeighbor);
+  else if(action==='add') openModal(-1,isNeighbor);
+});
 document.getElementById('modal-cancel').onclick=closeModal;
 document.getElementById('modal-save').onclick=saveModal;
 document.getElementById('modal-backdrop').addEventListener('click',e=>{if(e.target===document.getElementById('modal-backdrop'))closeModal();});
